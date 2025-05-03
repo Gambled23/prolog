@@ -234,9 +234,10 @@ triage():-
     write("Ingrese el grado de tensión arterial"),
     read(X),
     tension_arterial(X,Puntaje),
-    concatenar_lista(Puntaje,Lista,Lista).
+    concatenar_lista(Puntaje,Lista,Lista)
     write("Ingrese el grado de glucemia"),
     read(X),
     glucemia(X,Puntaje),
-    concatenar_lista(Puntaje,Lista,Lista).
+    concatenar_lista(Puntaje,Lista,Lista),
+    total(Lista)
     
