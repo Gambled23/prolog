@@ -6,23 +6,23 @@ from tkinter import messagebox
 
 # Maps category technical name -> (Display Name, {Option: Points})
 triage_categories = {
-    "traumatismo": ("Traumatismo", {"1": 0, "2": 5, "3": 10, "4": 15}),
-    "heridas": ("Heridas", {"1": 0, "2": 5, "3": 10, "4": 15}),
-    "trabajo_respiratorio": ("Aumento Trabajo Respiratorio", {"1": 0, "2": 5, "3": 10, "4": 15}),
-    "cianosis": ("Cianosis", {"1": 0, "2": 5, "3": 10, "4": 15}),
-    "palidez": ("Palidez", {"1": 0, "2": 5, "3": 10, "4": 15}),
-    "hemorragia": ("Hemorragia Visible/Sospecha", {"1": 0, "2": 5, "3": 10, "4": 15}),
-    "dolor": ("Dolor Visible/Sospecha", {"1": 0, "2": 5, "3": 10, "4": 15}),
-    "intoxicacion": ("Intoxicación / Auto Daño", {"1": 0, "2": 10, "3": 15}),
-    "convulsiones": ("Convulsiones", {"1": 0, "2": 10, "3": 15}),
-    "giasgow_neurologico": ("Glasgow Neurológico (Escala)", {"1": 0, "2": 5, "3": 10, "4": 15}), # Assuming 'Giasgow' is 'Glasgow'
-    "deshidratacion": ("Deshidratación", {"1": 0, "2": 5, "3": 10, "4": 15}),
-    "psicosis_agitacion_violencia": ("Psicosis / Agitación / Violencia", {"1": 0, "2": 0, "3": 15, "4": 15}),
-    "frecuencia_cardiaca": ("Frecuencia Cardíaca (Rango)", {"1": 10, "2": 5, "3": 0, "4": 5, "5": 10}),
-    "temperatura": ("Temperatura (Rango)", {"1": 10, "2": 5, "3": 0, "4": 5, "5": 10}),
-    "frecuencia_respiratoria": ("Frecuencia Respiratoria (Rango)", {"1": 10, "2": 5, "3": 0, "4": 5, "5": 10}),
-    "tension_arterial": ("Tensión Arterial (Rango)", {"1": 10, "2": 5, "3": 0, "4": 5, "5": 10}),
-    "glucemia": ("Glucemia (Rango)", {"1": 10, "2": 5, "3": 0, "4": 5, "5": 10}),
+    "traumatismo": ("Traumatismo", {"Ausente": 0, "Menor": 5, "Moderado": 10, "Mayor": 15}),
+    "heridas": ("Heridas", {"Ausente": 0, "Superficial": 5, "No permanente": 10, "Extensa-profunda": 15}),
+    "trabajo_respiratorio": ("Aumento Trabajo Respiratorio", {"Ausente": 0, "Leve": 5, "Moderado": 10, "Severo": 15}),
+    "cianosis": ("Cianosis", {"Ausente": 0, "Leve": 5, "Moderado": 10, "Severo": 15}),
+    "palidez": ("Palidez", {"Ausente": 0, "Leve": 5, "Moderado": 10, "Severo": 15}),
+    "hemorragia": ("Hemorragia", {"Ausente": 0, "Inactiva-Leve": 5, "Moderado": 10, "Severo": 15}),
+    "dolor": ("Dolor (escala análoga visual 0-10)", {"0": 0, "1-4": 5, "5-8": 10, "9-10": 15}),
+    "intoxicacion": ("Intoxicación / Auto Daño", {"Ausente": 0, "Dudosa": 10, "Evidente": 15}),
+    "convulsiones": ("Convulsiones", {"Ausente": 0, "Edo. Postictal": 10, "Presente": 15}),
+    "giasgow_neurologico": ("Glasgow Neurológico (Escala)", {"15": 0, "14 al 12": 5, "11 al 8": 10, "<8": 15}),
+    "deshidratacion": ("Deshidratación", {"Ausente": 0, "Leve": 5, "Moderada": 10, "Severa": 15}),
+    "psicosis_agitacion_violencia": ("Psicosis / Agitación / Violencia", {"Ausente": 0, "Presente": 15}),
+    "frecuencia_cardiaca": ("Frecuencia Cardíaca (X')", {"<40": 10, "40-50": 5, "60-100": 0, "101-140": 5, ">140": 10}),
+    "temperatura": ("Temperatura (C)", {"<34.5": 10, "34.5-35.9": 5, "36-37": 0, "37.1-39": 5, ">39": 10}),
+    "frecuencia_respiratoria": ("Frecuencia Respiratoria (X')", {"<8": 10, "8-12": 5, "13-18": 0, "19-25": 5, ">25": 10}),
+    "tension_arterial": ("Tensión Arterial (mmHg)", {"<70/50": 10, "70/50-90/60": 5, "91/61-12/80": 0, "121/81-160/110": 5, ">180/110": 10}),
+    "glucemia": ("Glucemia cap.", {"<40": 10, "40-60": 5, "61-140": 0, "141-400": 5, ">400": 10}),
 }
 
 # --- Decision Logic (from Prolog Rules) ---
