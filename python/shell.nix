@@ -8,6 +8,7 @@ in pkgs.mkShell rec {
   buildInputs = [
     pythonPackages.python
     pythonPackages.tkinter
+    swi-prolog-gui
 
     # This executes some shell code to initialize a venv in $venvDir before
     # dropping into the shell

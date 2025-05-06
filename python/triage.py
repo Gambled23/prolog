@@ -1,29 +1,37 @@
+from pyswip import Prolog
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-# --- Data Representation (from Prolog Facts) ---
+# --- Load Data from Prolog File ---
+def load_triage_categories():
+    """Loads triage categories dynamically from the Prolog file."""
+    prolog = Prolog()
+    prolog.consult("triage.pl")  # Load the Prolog file
 
-# Maps category technical name -> (Display Name, {Option: Points})
-triage_categories = {
-    "traumatismo": ("Traumatismo", {"Ausente": 0, "Menor": 5, "Moderado": 10, "Mayor": 15}),
-    "heridas": ("Heridas", {"Ausente": 0, "Superficial": 5, "No permanente": 10, "Extensa-profunda": 15}),
-    "trabajo_respiratorio": ("Aumento Trabajo Respiratorio", {"Ausente": 0, "Leve": 5, "Moderado": 10, "Severo": 15}),
-    "cianosis": ("Cianosis", {"Ausente": 0, "Leve": 5, "Moderado": 10, "Severo": 15}),
-    "palidez": ("Palidez", {"Ausente": 0, "Leve": 5, "Moderado": 10, "Severo": 15}),
-    "hemorragia": ("Hemorragia", {"Ausente": 0, "Inactiva-Leve": 5, "Moderado": 10, "Severo": 15}),
-    "dolor": ("Dolor (escala análoga visual 0-10)", {"0": 0, "1-4": 5, "5-8": 10, "9-10": 15}),
-    "intoxicacion": ("Intoxicación / Auto Daño", {"Ausente": 0, "Dudosa": 10, "Evidente": 15}),
-    "convulsiones": ("Convulsiones", {"Ausente": 0, "Edo. Postictal": 10, "Presente": 15}),
-    "giasgow_neurologico": ("Glasgow Neurológico (Escala)", {"15": 0, "14 al 12": 5, "11 al 8": 10, "<8": 15}),
-    "deshidratacion": ("Deshidratación", {"Ausente": 0, "Leve": 5, "Moderada": 10, "Severa": 15}),
-    "psicosis_agitacion_violencia": ("Psicosis / Agitación / Violencia", {"Ausente": 0, "Presente": 15}),
-    "frecuencia_cardiaca": ("Frecuencia Cardíaca (X')", {"<40": 10, "40-50": 5, "60-100": 0, "101-140": 5, ">140": 10}),
-    "temperatura": ("Temperatura (C)", {"<34.5": 10, "34.5-35.9": 5, "36-37": 0, "37.1-39": 5, ">39": 10}),
-    "frecuencia_respiratoria": ("Frecuencia Respiratoria (X')", {"<8": 10, "8-12": 5, "13-18": 0, "19-25": 5, ">25": 10}),
-    "tension_arterial": ("Tensión Arterial (mmHg)", {"<70/50": 10, "70/50-90/60": 5, "91/61-12/80": 0, "121/81-160/110": 5, ">180/110": 10}),
-    "glucemia": ("Glucemia cap.", {"<40": 10, "40-60": 5, "61-140": 0, "141-400": 5, ">400": 10}),
-}
+    categories = {}
+    # Define the categories to extract
+    category_names = [
+        "traumatismo", "heridas", "trabajo_respiratorio", "cianosis", "palidez",
+        "hemorragia", "dolor", "intoxicacion", "convulsiones", "giasgow_neurologico",
+        "deshidratacion", "psicosis_agitacion_violencia", "frecuencia_cardiaca",
+        "temperatura", "frecuencia_respiratoria", "tension_arterial", "glucemia"
+    ]
+
+    for category in category_names:
+        options = {}
+        query = list(prolog.query(f"{category}(X, Y)"))  # Query Prolog for facts
+        for result in query:
+            # Decode bytes to strings for the keys
+            key = result["X"].decode("utf-8") if isinstance(result["X"], bytes) else result["X"]
+            options[key] = result["Y"]  # Map option to its score
+        categories[category] = (category.capitalize(), options)
+
+    return categories
+
+# Load categories dynamically
+triage_categories = load_triage_categories()
+print("DEBUG: triage_categories =", triage_categories)
 
 # --- Decision Logic (from Prolog Rules) ---
 def get_decision(total_score):
@@ -39,7 +47,7 @@ def get_decision(total_score):
     elif total_score > 30:
         return "Atención Inmediata"
     else:
-        return "Puntaje inválido" # Should not happen with valid inputs
+        return "Puntaje inválido"  # Should not happen with valid inputs
 
 # --- GUI Functions ---
 def calculate_triage():
@@ -50,13 +58,13 @@ def calculate_triage():
             selected_option = data["var"].get()
             if not selected_option:
                 messagebox.showerror("Error de Entrada", f"Por favor seleccione una opción para '{data['display_name']}'.")
-                return # Stop calculation if any field is empty
+                return  # Stop calculation if any field is empty
 
             # Look up points for the selected option in the specific category
             points = triage_categories[category_key][1].get(selected_option)
             if points is None:
-                 messagebox.showerror("Error Interno", f"Opción inválida '{selected_option}' para '{data['display_name']}'.")
-                 return # Stop if data is inconsistent
+                messagebox.showerror("Error Interno", f"Opción inválida '{selected_option}' para '{data['display_name']}'.")
+                return  # Stop if data is inconsistent
 
             total_score += points
 
@@ -76,7 +84,7 @@ def calculate_triage():
 # --- GUI Setup ---
 root = tk.Tk()
 root.title("Sistema de Triage")
-root.geometry("550x650") # Adjusted size for more inputs
+root.geometry("550x650")  # Adjusted size for more inputs
 
 # --- Scrollable Frame Setup ---
 main_frame = ttk.Frame(root)
@@ -96,7 +104,7 @@ scrollable_frame = ttk.Frame(canvas, padding="10")
 canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 
 # --- Input Widgets ---
-category_vars = {} # Dictionary to store StringVars for each category
+category_vars = {}  # Dictionary to store StringVars for each category
 
 # Create label and combobox for each category dynamically
 for i, (key, (display_name, options_map)) in enumerate(triage_categories.items()):
@@ -107,9 +115,9 @@ for i, (key, (display_name, options_map)) in enumerate(triage_categories.items()
     # Combobox (Dropdown)
     options = list(options_map.keys())
     combo_var = tk.StringVar(root)
-    combobox = ttk.Combobox(scrollable_frame, textvariable=combo_var, values=options, state="readonly", width=25) # Readonly is important
+    combobox = ttk.Combobox(scrollable_frame, textvariable=combo_var, values=options, state="readonly", width=25)  # Readonly is important
     combobox.grid(row=i, column=1, padx=5, pady=5, sticky="ew")
-    combobox.current(0) # Set default to the first option
+    combobox.current(0)  # Set default to the first option
 
     # Store the variable and display name for later access
     category_vars[key] = {"var": combo_var, "display_name": display_name}
